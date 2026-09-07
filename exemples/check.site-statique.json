@@ -1,0 +1,37 @@
+{
+  "project": "site statique en production (11ty)",
+  "steps": [
+    { "name": "Build", "cmd": "npm run build", "expect": "build sans erreur, _site/ régénéré" }
+  ],
+  "regressions": [
+    { "pattern": "http://",
+      "why": "liens externes en https uniquement — faux positif légitime : xmlns, DTD, schémas XML",
+      "ref": "CLAUDE.md#securite" },
+    { "pattern": "target=\"_blank\"(?![^>]*rel=)",
+      "why": "target=_blank sans rel=noopener — fuite window.opener",
+      "ref": "CLAUDE.md#securite" },
+    { "pattern": "\\b(eval\\(|document\\.write\\()",
+      "why": "interdits sur ce site",
+      "ref": "CLAUDE.md#securite" },
+    { "pattern": "innerHTML\\s*=",
+      "why": "vérifier qu'aucune donnée non maîtrisée n'y entre",
+      "ref": "CLAUDE.md#securite" },
+    { "pattern": "addEventListener\\(['\"]message['\"]",
+      "why": "postMessage — event.origin doit être validé",
+      "ref": "CLAUDE.md#securite" },
+    { "pattern": "<script[^>]+src=\"https://(?![^\"]*\")[^>]*(?!integrity)",
+      "why": "CDN sans SRI (integrity + crossorigin)",
+      "ref": "CLAUDE.md#securite" }
+  ],
+  "audit": { "historical": [], "exclude": ["_site/**"] },
+  "visual": {
+    "when": "le diff touche un layout, le CSS, ou le frontmatter d'un article",
+    "how": "npm run serve puis vérifier la page concernée ; contrôler og:title = <title> = JSON-LD headline"
+  },
+  "predeploy": [
+    "npm run build passe sans erreur",
+    "aucun secret, clé API ou chemin local",
+    "meta tags cohérents (og:title = title = headline)",
+    "CNAME présent dans src/"
+  ]
+}
