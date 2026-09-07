@@ -1,5 +1,22 @@
 # Socle
 
+> **English summary** — *Socle* ("foundation") is a set of guardrails and working practices
+> for building software with a coding agent over the long run. It is **not** a quality
+> analyser: it doesn't score your project or find your bugs. It's the harness that keeps an
+> agent from drifting as a project grows — claiming things it never verified, forgetting to
+> document what it creates, breaking what it had no way to know about.
+>
+> It ships **two programs that fail loudly** (a registry checker that exits non-zero when a
+> source file was created without being documented; a pre-commit hook that blocks leaked
+> keys), **four procedures the agent follows** (`check`, `bootstrap`, `audit`, `registry` —
+> plain text, read by Claude Code), and **five method documents** — including 13 guardrails
+> for an agent that actually acts on files, the system and a budget, each one drawn from a
+> real incident rather than a theoretical precaution.
+>
+> Extracted from three real projects: a desktop app where a local model calls tools with real
+> side effects, a second desktop app, and a static site in production. Three stacks, one
+> method. **The documentation below is in French** — the method's precision depends on it.
+
 **Méthode et garde-fous pour travailler avec un agent de code sur un projet qui dure.**
 
 Ce n'est pas un analyseur de qualité : il ne note pas votre projet et ne détecte pas vos
