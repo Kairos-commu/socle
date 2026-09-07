@@ -1,13 +1,32 @@
 # Socle
 
-Méthode de travail avec un agent de code, extraite de trois projets réels et de leurs
-incidents : une application de bureau avec agent local outillé, une seconde application de
-bureau, un site statique en production. Trois stacks différentes, la même méthode.
+**Méthode et garde-fous pour travailler avec un agent de code sur un projet qui dure.**
 
-**Ce n'est pas un template de projet.** Il ne contient aucun code d'application, aucun
-framework, aucun choix de bibliothèque. Ce qui périme en six mois n'y est pas.
+Ce n'est pas un analyseur de qualité : il ne note pas votre projet et ne détecte pas vos
+bugs. C'est le harnais qui empêche un agent de dériver à mesure que le projet grossit —
+affirmer des choses fausses, oublier de documenter ce qu'il crée, casser ce qu'il ne pouvait
+pas savoir.
 
-Ce qu'il contient : les règles qui ont tenu, et les **mécanismes qui les font tenir**.
+Extrait de trois projets réels et de leurs incidents : une application de bureau dont un
+modèle local appelle des outils à effet réel (fichiers, système, dépenses), une seconde
+application de bureau, un site statique en production. Trois stacks différentes, la même
+méthode.
+
+**Aucun code d'application**, aucun framework, aucun choix de bibliothèque. Ce qui périme en
+six mois n'y est pas.
+
+## Ce qu'il y a dedans, concrètement
+
+**Deux programmes qui bloquent.** Ils s'exécutent seuls, sans IA. `check-registry.mjs` sort
+en erreur si un fichier source a été créé sans être documenté ; le hook pre-commit refuse un
+commit contenant une clé, et lance tests et build avant de laisser passer.
+
+**Quatre procédures que l'agent suit.** Des fichiers texte, pas du code : `/check` lance les
+vérifications dans l'ordre et rend un verdict binaire, `/bootstrap` installe le socle sur un
+projet, `/audit` compare la doc au code, `/registry` construit l'index des fonctions.
+
+**Cinq documents de méthode.** Le vrai contenu — notamment 13 garde-fous pour un agent qui
+agit vraiment, chacun tiré d'un incident constaté, pas d'une précaution théorique.
 
 ## Le principe
 
@@ -69,6 +88,17 @@ Ensuite, après chaque modification :
   nouvelles.
 - Il ne rend pas un projet rigoureux tout seul. Les mécanismes rendent la discipline moins
   coûteuse que son contournement — c'est tout, et c'est déjà l'essentiel.
+
+## Limites, dites franchement
+
+- **Extrait des projets d'une seule personne, sur une seule machine.** La méthode est valide
+  là d'où elle vient ; ailleurs, c'est à vérifier. Le tableau ci-dessous est ce qui existe
+  comme preuve, ni plus ni moins.
+- **`bootstrap` suppose Node/npm** pour détecter les scripts d'un projet. Sur une autre
+  chaîne d'outils, une partie tombe à plat et le manifeste se remplit à la main.
+- **`check` attrape les régressions connues, pas les nouvelles.** Il ne remplace ni la
+  relecture ni les tests — il empêche de reperdre ce qui a déjà coûté une fois.
+
 
 ## Genèse
 
