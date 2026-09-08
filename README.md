@@ -73,6 +73,7 @@ skills/
   check/                garde de régression à étapes ordonnées, verdict binaire
   audit/                cohérence doc ↔ code, ne modifie rien
   registry/             construit et maintient le registre de fonctions
+  point/                fait le point en début de session — livré, en cours, à reprendre
 
 templates/
   CLAUDE.md.tpl         squelette d'instructions projet
@@ -81,6 +82,7 @@ templates/
 
 bin/
   check-registry.mjs    le mécanisme : sort en 1 si le registre a divergé des sources
+  chantiers.mjs         inventaire de ce qui est commencé et jamais refermé — zéro appel modèle
 
 exemples/
   check.site-statique.json   manifeste réel d'un projet sans stack Node — ce que
@@ -132,6 +134,21 @@ $ node bin/check-registry.mjs
 
 Code de sortie 1 dans le premier cas, 0 dans le second — c'est ce que `/check` lit pour
 rendre son verdict, pas une lecture humaine du texte.
+
+## Reprendre un projet sans le relire
+
+Sur un dépôt qui a de l'historique, demander à un modèle « où j'en suis ? » revient à lui
+faire relire des milliers de lignes de doc à chaque session. Or l'essentiel de la réponse est
+déjà écrit noir sur blanc — « pas encore revérifié en usage réel », « non corrigé »,
+« reste à faire » — et se calcule.
+
+`chantiers.mjs` produit cet inventaire sans un seul appel modèle : marqueurs d'inachèvement
+groupés par section et par date, tests désactivés, TODO, état de git, et les commits de la
+période pour équilibrer le tableau. Sur un projet réel de 5 500 lignes de post-mortems, il
+sort 329 marqueurs bruts, ramenés à 82 avec `--depuis`. Le skill `point` part de cette sortie
+et n'ouvre un fichier que si le rapport l'y envoie.
+
+C'est le même principe que partout ailleurs ici : ce qui est calculable ne se fait pas juger.
 
 ## Ce que le socle ne fait pas
 
