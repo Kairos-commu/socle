@@ -108,24 +108,26 @@ Ensuite, après chaque modification :
 ## Ce que ça donne en vrai
 
 `check-registry.mjs` n'est pas un linter qui suggère — il sort en erreur, avec le chemin
-exact à documenter. Sur un registre réel de 130 fichiers, un fichier ajouté sans entrée :
+exact à documenter. Ci-dessous la sortie réelle de son premier passage sur un registre de
+130 fichiers, tenu à la main depuis des semaines. Il y a trouvé un fichier créé cinq jours
+plus tôt et jamais documenté :
 
 ```
 $ node bin/check-registry.mjs
 
 ✗ 1 fichier(s) source absent(s) du registre :
-    src/renderer/js/shared/export-csv.ts  → documenter dans registry/<domaine>.md
+    src/main/audio-mute-journal.js  → documenter dans registry/<domaine>.md
 
-130 fichiers source, 6 fichiers de registre.
+130 fichiers source, 8 fichiers de registre.
 Cf. doctrine/registre.md du socle.
 ```
 
-Une fois l'entrée ajoutée, le même appel :
+Une fois l'entrée écrite, le même appel :
 
 ```
 $ node bin/check-registry.mjs
 
-✓ registre cohérent — 130 fichiers source couverts par 6 fichiers de registre.
+✓ registre cohérent — 130 fichiers source couverts par 8 fichiers de registre.
 ```
 
 Code de sortie 1 dans le premier cas, 0 dans le second — c'est ce que `/check` lit pour
