@@ -163,8 +163,9 @@ C'est le même principe que partout ailleurs ici : ce qui est calculable ne se f
 - **Extrait des projets d'une seule personne, sur une seule machine.** La méthode est valide
   là d'où elle vient ; ailleurs, c'est à vérifier. Le tableau ci-dessous est ce qui existe
   comme preuve, ni plus ni moins.
-- **`bootstrap` suppose Node/npm** pour détecter les scripts d'un projet. Sur une autre
-  chaîne d'outils, une partie tombe à plat et le manifeste se remplit à la main.
+- **`bootstrap` suppose Node/npm** pour détecter les scripts d'un projet. Vérifié sur un
+  projet Python : le manifeste doit s'écrire à la main. Ça fonctionne, mais ce n'est pas ce
+  que le skill promet.
 - **`check` attrape les régressions connues, pas les nouvelles.** Il ne remplace ni la
   relecture ni les tests — il empêche de reperdre ce qui a déjà coûté une fois.
 
@@ -226,6 +227,7 @@ ont produit, mesuré :
 | hook pre-commit | projet sans tests, sans lint, sans registre | 3 étapes annoncées sautées, build exécuté, passe |
 | hook pre-commit | index vide | **bloquait tous les commits** → corrigé (tester le contenu, pas le code retour du pipeline) |
 | `check` complet | site en production, diff de 5 fichiers | 0 régression, vérification visuelle requise, verdict WARNING |
+| `chantiers.mjs` | projet Python (unittest, sans pip) | **annonçait 0 test désactivé sur tout ce qui n'est pas JS** → motifs élargis à Python, Rust, Go |
 
 Les deux défauts trouvés l'ont été **au premier passage sur un projet étranger**, pas sur ceux
 d'où le socle vient. C'est la raison d'être de cette section : une méthode extraite de ses

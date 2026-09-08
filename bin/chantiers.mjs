@@ -40,6 +40,25 @@ const FAMILIES = cfg.families ?? [
     re: 'reste à faire|non fait|pas construit|à construire|prochaine étape|reste hors scope|pas encore implémenté' },
 ];
 
+/**
+ * Marqueurs de test désactivé. Le défaut couvre JS/TS et Python — un motif propre à un
+ * écosystème rendrait « 0 test désactivé » sur tous les autres, ce qui est pire qu'une
+ * absence de mesure : c'est une affirmation fausse et rassurante. Constaté au premier
+ * passage sur un projet Python, où @unittest.skip serait passé inaperçu.
+ * Surchargeable via chantiers.skippedTestPattern dans le manifeste.
+ */
+const SKIPPED_TEST_RE = new RegExp(
+  cfg.skippedTestPattern ??
+    [
+      '\\b(it|test|describe)\\.(skip|only)\\b', // JS/TS : it.skip, describe.only
+      '\\bx(it|describe)\\(', // JS/TS : xit(, xdescribe(
+      '@(unittest\\.)?skip', // Python : @skip, @unittest.skipIf
+      '@pytest\\.mark\\.(skip|xfail)', // Python : pytest
+      '#\\[ignore\\]', // Rust
+      't\\.Skip\\(', // Go
+    ].join('|'),
+);
+
 const isExcluded = (p) => EXCLUDE.some((re) => re.test(p));
 
 function walk(entry, exts, acc = []) {
@@ -88,7 +107,7 @@ for (const f of DOC_DIRS.flatMap((d) => walk(d, ['.md']))) {
 for (const f of SRC_DIRS.flatMap((d) => walk(d, SRC_EXT))) {
   const lines = readFileSync(join(root, f), 'utf8').split('\n');
   lines.forEach((line, i) => {
-    if (/\b(it|test|describe)\.(skip|only)\b|\bx(it|describe)\(/.test(line))
+    if (SKIPPED_TEST_RE.test(line))
       findings.tests.push({ file: f, line: i + 1, text: line.trim().slice(0, 120) });
     if (/\b(TODO|FIXME|HACK|XXX)\b/.test(line))
       findings.todos.push({ file: f, line: i + 1, text: line.trim().slice(0, 120) });
