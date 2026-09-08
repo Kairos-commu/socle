@@ -75,6 +75,38 @@ livrable est court.
 Trois priorités au maximum. S'il y en a une quatrième qui te paraît indispensable, c'est que
 les trois premières sont mal choisies.
 
+## Automatiser — le point du jour au premier lancement
+
+Pour un projet où l'on ouvre plusieurs sessions par jour, invoquer `/point` à la main finit
+par ne plus se faire. `templates/session-start-point.sh` est fait pour un hook `SessionStart` :
+il ne s'exécute qu'**une fois par jour et par dépôt** (marqueur daté dans `$XDG_STATE_HOME`),
+les sessions suivantes sortent en silence.
+
+Dans `.claude/settings.local.json` — jamais dans le fichier versionné : le rythme est une
+préférence personnelle, pas une règle de projet.
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [ { "type": "command", "timeout": 20,
+        "command": "out=$(bash \"$HOME/<socle>/templates/session-start-point.sh\" 2>/dev/null); [ -n \"$out\" ] && jq -n --arg c \"$out\" '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:$c}}' || true" } ] }
+    ]
+  }
+}
+```
+
+Le rapport est injecté dans le contexte de la session, suivi d'une consigne courte : si une
+idée nouvelle recoupe un chantier ouvert, le dire en une phrase avant de commencer — puis
+faire ce qui est demandé. **Signaler, jamais bloquer.**
+
+**Le coût est réel, dis-le.** Le rapport occupe environ 1 500 tokens par jour et par dépôt —
+deux ordres de grandeur sous un audit, mais pas zéro. Deux leviers : `POINT_WINDOW_DAYS`
+(défaut 10) resserre la fenêtre, et `SOCLE_DIR` pointe une autre installation.
+
+**Le script ne bloque jamais l'ouverture d'une session** : hors dépôt git, script absent,
+`node` indisponible — il sort en silence, code 0.
+
 ## Ce que ce skill ne fait pas
 
 - **Il ne corrige rien.** Faire le point et réparer sont deux gestes ; les mélanger fait
