@@ -1,5 +1,8 @@
 # Socle
 
+[![License: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
+[![Méthode](https://img.shields.io/badge/type-m%C3%A9thode%2C%20pas%20framework-lightgrey.svg)](#le-principe)
+
 > **English summary** — *Socle* ("foundation") is a set of guardrails and working practices
 > for building software with a coding agent over the long run. It is **not** a quality
 > analyser: it doesn't score your project or find your bugs. It's the harness that keeps an
@@ -78,6 +81,10 @@ templates/
 
 bin/
   check-registry.mjs    le mécanisme : sort en 1 si le registre a divergé des sources
+
+exemples/
+  check.site-statique.json   manifeste réel d'un projet sans stack Node — ce que
+                              `bootstrap` produit quand il ne peut pas tout détecter seul
 ```
 
 ## Démarrer
@@ -97,6 +104,32 @@ Ensuite, après chaque modification :
 ```
 /check
 ```
+
+## Ce que ça donne en vrai
+
+`check-registry.mjs` n'est pas un linter qui suggère — il sort en erreur, avec le chemin
+exact à documenter. Sur un registre réel de 130 fichiers, un fichier ajouté sans entrée :
+
+```
+$ node bin/check-registry.mjs
+
+✗ 1 fichier(s) source absent(s) du registre :
+    src/renderer/js/shared/export-csv.ts  → documenter dans registry/<domaine>.md
+
+130 fichiers source, 6 fichiers de registre.
+Cf. doctrine/registre.md du socle.
+```
+
+Une fois l'entrée ajoutée, le même appel :
+
+```
+$ node bin/check-registry.mjs
+
+✓ registre cohérent — 130 fichiers source couverts par 6 fichiers de registre.
+```
+
+Code de sortie 1 dans le premier cas, 0 dans le second — c'est ce que `/check` lit pour
+rendre son verdict, pas une lecture humaine du texte.
 
 ## Ce que le socle ne fait pas
 
@@ -147,3 +180,19 @@ Les deux défauts trouvés l'ont été **au premier passage sur un projet étran
 d'où le socle vient. C'est la raison d'être de cette section : une méthode extraite de ses
 propres projets est valide chez elle par construction, et nulle part ailleurs tant qu'on ne
 l'a pas vue s'exécuter chez un tiers.
+
+## Si tu l'essaies ailleurs
+
+Rien ici n'a été vérifié en dehors des projets listés plus haut. Si tu poses `/bootstrap` sur
+un projet d'une autre stack, d'une autre taille, ou avec d'autres habitudes, et que quelque
+chose casse — un faux positif, une hypothèse fausse sur ton outillage, une règle qui ne tient
+pas — [ouvre une issue](https://github.com/Kairos-commu/socle/issues) avec ce que `bootstrap`
+ou `check` a réellement produit. C'est exactement ce genre de constat qui a fait grossir ce
+socle jusqu'ici (cf. « Genèse » et « Éprouvé sur »), et la seule façon dont il peut continuer.
+
+## Voir aussi
+
+- **[Kairos-commu](https://github.com/Kairos-commu)** — le profil, et le contexte d'où vient
+  cette méthode.
+- **[site-de-recherche](https://github.com/Kairos-commu/site-de-recherche)** — le projet le
+  plus étranger sur lequel le socle a été éprouvé (cf. « Éprouvé sur » plus haut).
