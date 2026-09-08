@@ -169,6 +169,38 @@ C'est le même principe que partout ailleurs ici : ce qui est calculable ne se f
   relecture ni les tests — il empêche de reperdre ce qui a déjà coûté une fois.
 
 
+## Questions fréquentes
+
+**« C'est un outil qui analyse mon code ? »**
+Non. Il ne note rien, ne mesure aucune qualité et ne trouve pas vos bugs. Il empêche un agent
+de dériver à mesure qu'un projet grossit. Si vous cherchez un linter ou un analyseur statique,
+ce n'est pas ici.
+
+**« En quoi c'est différent d'un fichier d'instructions bien écrit ? »**
+C'est la vraie question. Un bon fichier d'instructions est nécessaire et ne suffit pas : il
+énonce des règles que rien ne fait respecter. Ici, chaque contrainte qui compte a un mécanisme
+qui **échoue** quand elle est violée — un test qui sort en erreur, un hook qui bloque un
+commit, un champ de type qu'on ne peut pas omettre. Le reste du socle découle de ce principe,
+et il s'applique au socle lui-même : c'est pourquoi il livre des scripts et pas seulement des
+recommandations. Cf. `doctrine/garde-mecanique.md`.
+
+**« Ça marche avec quoi ? »**
+Les skills sont écrits pour Claude Code. Les deux programmes (`bin/`) sont du Node sans
+dépendance : ils tournent n'importe où, y compris en CI, indépendamment de tout agent.
+`bootstrap` détecte les scripts d'un projet Node ; sur une autre chaîne d'outils, le manifeste
+se remplit à la main.
+
+**« Est-ce que ça a été testé ailleurs que chez son auteur ? »**
+Non, et c'est la limite principale — elle est détaillée plus haut. Fait notable quand même :
+les deux seuls défauts trouvés dans le socle l'ont été au premier passage sur un projet qui
+n'était pas de la même famille que ceux d'où il vient. C'est pour ça que les retours ont plus
+de valeur ici que les contributions.
+
+**« Pourquoi la documentation est-elle en français ? »**
+Parce que la précision de la méthode en dépend, et que la traduire l'affadirait. Un résumé
+anglais est en tête de ce fichier ; les messages d'erreur des scripts, eux, sont là où ça
+compte : ils nomment le fichier fautif et le geste à faire.
+
 ## Genèse
 
 Chaque règle de `doctrine/` vient d'un incident constaté, pas d'une précaution théorique. Les
