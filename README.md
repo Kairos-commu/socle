@@ -234,6 +234,18 @@ d'où le socle vient. C'est la raison d'être de cette section : une méthode ex
 propres projets est valide chez elle par construction, et nulle part ailleurs tant qu'on ne
 l'a pas vue s'exécuter chez un tiers.
 
+## Ce que ça donne appliqué à un agent — Kora
+
+Le premier des trois projets d'origine est lui-même un agent : un modèle local de 12 milliards
+de paramètres qui lit des fichiers, écrit, supprime, dépense, sur la machine d'une personne.
+Ce que le socle devient quand l'objet construit est un agent qui agit — trois paliers de
+risque, deux journaux écrits avant la confirmation, une mémoire en fichier texte sous schéma,
+un banc à dix passes avant tout changement de prompt — est publié à part, comme dépôt de
+référence : **[github.com/Kairos-commu/kora](https://github.com/Kairos-commu/kora)** — une
+Kora générique (architecture, contrats extraits du code réel, guide vivant des décisions
+avec leur incident et leur mécanisme). Le socle est la méthode ; Kora est ce à quoi elle
+ressemble quand l'agent qu'on construit est lui-même un agent.
+
 ## Si tu l'essaies ailleurs
 
 Rien ici n'a été vérifié en dehors des projets listés plus haut. Si tu poses `/bootstrap` sur
