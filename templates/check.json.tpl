@@ -20,6 +20,7 @@
     "extensions": [".ts", ".js"],
     "exclude": ["\\.test\\.", "\\.spec\\.", "node_modules", "dist"]
   },
+  "context": { "maxLines": 200, "maxBytes": 60000 },
   "audit": {
     "historical": ["docs/incidents.md"],
     "exclude": ["CHANGELOG.md"]

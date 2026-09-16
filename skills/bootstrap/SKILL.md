@@ -25,20 +25,30 @@ Avant d'écrire quoi que ce soit, établir par la lecture (pas par supposition) 
 Restituer ce constat en cinq lignes avant de continuer. Un bootstrap posé sur une stack mal
 identifiée produit un manifeste qui échoue à la première exécution.
 
-## Étape 2 — `CLAUDE.md`
+## Étape 2 — Le contexte, en couches
 
-Depuis `templates/CLAUDE.md.tpl`. Les sections sont un squelette, pas un formulaire : ce qui
-ne s'applique pas se retire.
+Depuis `templates/CLAUDE.md.tpl` (racine), `templates/CLAUDE.domaine.md.tpl` (un par
+dossier de domaine) et `templates/rule.md.tpl` (règle à `paths:` pour un domaine éparpillé).
+Cf. `doctrine/contexte.md` : la racine ne porte que ce qu'une session doit savoir **avant
+d'agir** (150 lignes, 200 au plus) ; ce qui ne vaut que pour une partie du code descend dans
+son dossier ; le récit va dans `docs/`, jamais importé.
 
-Deux sections ne se retirent jamais :
+Les sections de la racine sont un squelette, pas un formulaire : ce qui ne s'applique pas se
+retire. Deux ne se retirent jamais :
 
 - **Vérification** — la règle `[code-verified]` / `[doc-only]` et l'obligation de lancer
   `/check` avant de clore. C'est ce qui conditionne la valeur de tout le reste.
 - **Portée** — faire le changement minimal qui corrige le problème signalé ; ne pas toucher
   aux réglages adjacents sans le dire et demander.
 
-Si un `CLAUDE.md` existe déjà : **ne pas le réécrire.** Proposer les sections manquantes, et
-laisser l'existant tel quel — il contient du savoir durement acquis.
+Si un `CLAUDE.md` existe déjà : **ne pas le réécrire, le mesurer.** `node
+<socle>/bin/check-context.mjs` dit ce qu'il pèse au lancement et où il déborde. S'il dépasse,
+proposer un découpage — chaque paragraphe existant est **déplacé**, jamais supprimé : vers
+le `CLAUDE.md` du dossier concerné, une règle, ou `docs/`. Il contient du savoir durement
+acquis ; ce qui change, c'est le moment où il est chargé.
+
+Si `~/.claude/CLAUDE.md` n'existe pas, proposer `templates/CLAUDE.utilisateur.md.tpl` : ce
+qui vaut pour tous les projets de la machine s'écrit une fois là, pas dans chaque projet.
 
 ## Étape 3 — `.claude/check.json`
 
@@ -58,7 +68,11 @@ Ce qui distingue ce skill d'un simple template :
    dans la commande de test.
 2. **Installer le hook pre-commit** depuis `templates/pre-commit.sh` : scan de secrets,
    lint des fichiers indexés, tests, build. Dans cet ordre — le moins cher d'abord.
-3. **Vérifier que les deux échouent vraiment** : casser volontairement le registre, lancer le
+3. **Lancer `bin/check-context.mjs`** depuis la racine du projet : il mesure ce qui se
+   charge à chaque session et sort en 1 si la racine dépasse 200 lignes, si un document est
+   chargé deux fois (import + règle) ou si le total dépasse le budget. Le brancher dans
+   `/check` (section `context` du manifeste pour ajuster les seuils).
+4. **Vérifier que les mécanismes échouent vraiment** : casser volontairement le registre, lancer le
    hook, constater le blocage, réparer. Un garde-fou jamais vu échouer n'est pas un
    garde-fou, c'est une intention.
 
@@ -80,9 +94,11 @@ personne ne l'entreprend plus.
 
 ## Étape 7 — Doctrine applicable
 
-Importer dans le `CLAUDE.md` les fichiers de `doctrine/` pertinents. `verification.md` et
-`garde-mecanique.md` toujours ; `llm-guardrails.md` seulement si un modèle est appelé —
-l'importer sans raison noie les règles qui comptent.
+**Ne pas importer la doctrine dans le `CLAUDE.md`** : un `@import` est chargé à chaque
+lancement, et 25 Ko de méthode noieraient les règles du projet (cf. `doctrine/contexte.md`).
+La racine porte déjà, en quatre puces, ce que `verification.md` exige ; le reste se lit à la
+demande. Renvoyer vers `llm-guardrails.md` depuis le `CLAUDE.md` du domaine qui appelle un
+modèle, seulement si un modèle est appelé.
 
 ## Étape 8 — Rapport
 

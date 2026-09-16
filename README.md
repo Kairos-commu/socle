@@ -37,15 +37,17 @@ six mois n'y est pas.
 
 ## Ce qu'il y a dedans, concrètement
 
-**Deux programmes qui bloquent.** Ils s'exécutent seuls, sans IA. `check-registry.mjs` sort
-en erreur si un fichier source a été créé sans être documenté ; le hook pre-commit refuse un
-commit contenant une clé, et lance tests et build avant de laisser passer.
+**Trois programmes qui bloquent.** Ils s'exécutent seuls, sans IA. `check-registry.mjs` sort
+en erreur si un fichier source a été créé sans être documenté ; `check-context.mjs` sort en
+erreur si ce que l'agent recharge à chaque session dépasse ce qu'il peut suivre (racine de
+plus de 200 lignes, document chargé deux fois) ; le hook pre-commit refuse un commit contenant
+une clé, et lance tests et build avant de laisser passer.
 
 **Quatre procédures que l'agent suit.** Des fichiers texte, pas du code : `/check` lance les
 vérifications dans l'ordre et rend un verdict binaire, `/bootstrap` installe le socle sur un
 projet, `/audit` compare la doc au code, `/registry` construit l'index des fonctions.
 
-**Cinq documents de méthode.** Le vrai contenu — notamment 13 garde-fous pour un agent qui
+**Six documents de méthode.** Le vrai contenu — notamment 13 garde-fous pour un agent qui
 agit vraiment, chacun tiré d'un incident constaté, pas d'une précaution théorique.
 
 ## Le principe
@@ -67,6 +69,7 @@ doctrine/
   registre.md           index des fonctions, construit à froid, tenu par un test
   journal-incidents.md  le post-mortem comme actif qui prend de la valeur
   llm-guardrails.md     13 patterns pour un agent qui agit vraiment (fichiers, système, coût)
+  contexte.md           ce qui se charge à chaque session, en quatre couches — et ce qui attend
 
 skills/
   bootstrap/            équipe un projet — CLAUDE.md, manifeste, mécanismes, journal
@@ -76,12 +79,16 @@ skills/
   point/                fait le point en début de session — livré, en cours, à reprendre
 
 templates/
-  CLAUDE.md.tpl         squelette d'instructions projet
+  CLAUDE.md.tpl         la RACINE : ce qu'une session doit savoir avant d'agir, ≤ 200 lignes
+  CLAUDE.domaine.md.tpl un CLAUDE.md par dossier de domaine, chargé quand on y touche
+  rule.md.tpl           règle .claude/rules/ à `paths:`, pour un domaine éparpillé
+  CLAUDE.utilisateur.md.tpl  ~/.claude/CLAUDE.md : ce qui vaut pour tous les projets, écrit une fois
   check.json.tpl        manifeste de vérification, par projet
   pre-commit.sh         secrets, lint, registre, tests, build
 
 bin/
   check-registry.mjs    le mécanisme : sort en 1 si le registre a divergé des sources
+  check-context.mjs     mesure ce qui se charge à chaque lancement ; sort en 1 si ça déborde
   chantiers.mjs         inventaire de ce qui est commencé et jamais refermé — zéro appel modèle
 
 exemples/
@@ -224,6 +231,8 @@ ont produit, mesuré :
 |---|---|---|
 | `check-registry.mjs` | registre réel, 130 fichiers source | 1 fichier créé et jamais documenté, trouvé en une passe |
 | `check-registry.mjs` | même registre, mentions historiques | 1 faux positif → règle resserrée aux titres de section |
+| `check-context.mjs` | projet de bureau, `CLAUDE.md` de 685 lignes + 5 imports | **284 Ko (~70 000 tokens) rechargés à chaque session**, dont 2 docs chargées deux fois depuis 4 jours — découpé en 4 couches, 15 Ko (~3 800 tokens) après |
+| `check-context.mjs` | second projet de bureau, 535 lignes | dépassement signalé, découpage à faire |
 | hook pre-commit | projet sans tests, sans lint, sans registre | 3 étapes annoncées sautées, build exécuté, passe |
 | hook pre-commit | index vide | **bloquait tous les commits** → corrigé (tester le contenu, pas le code retour du pipeline) |
 | `check` complet | site en production, diff de 5 fichiers | 0 régression, vérification visuelle requise, verdict WARNING |

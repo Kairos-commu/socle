@@ -54,6 +54,18 @@ node <socle>/bin/check-registry.mjs
 Sauté si le manifeste n'a pas de section `registry`. Sinon, un échec ici bloque : un fichier
 créé et jamais documenté est exactement ce que le registre existe pour empêcher.
 
+## Étape 3b — Contexte au lancement
+
+```
+node <socle>/bin/check-context.mjs
+```
+
+Sort en 1 si le `CLAUDE.md` racine dépasse 200 lignes, si un document est chargé deux fois
+(import inconditionnel + règle à `paths:`) ou si le total chargé à chaque session dépasse le
+budget (`context.maxBytes` du manifeste, 60 000 octets par défaut). Ce n'est pas du code qui
+régresse, c'est la capacité de la prochaine session à suivre les règles — cf.
+`doctrine/contexte.md`. Toujours exécuté : le mécanisme n'a besoin d'aucune configuration.
+
 ## Étape 4 — Vérification visuelle ou fonctionnelle (si l'UI est touchée)
 
 Si le diff touche l'interface et que `visual` est configuré dans le manifeste, suivre la
@@ -84,6 +96,7 @@ coïncidence** : comparer un taux sur N passes à la mesure précédente.
 Étape 1 — <nom> : ✅ / ❌   <sortie si échec>
 Étape 2 — Régressions   : ✅ / ⚠️  <correspondances + why>
 Étape 3 — Registre      : ✅ / ❌ / ⏭️ sauté (raison)
+Étape 3b — Contexte     : ✅ / ❌   <racine N/200 lignes, total N octets, doublons>
 Étape 4 — Visuel        : ✅ / ❌ / ⏭️ sauté (raison)
 Étape 5 — Harnais       : ✅ / ❌ / ⏭️ sauté (raison)
 
