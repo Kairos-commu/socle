@@ -21,19 +21,21 @@
  * Trois échecs, chacun tiré d'un cas réel :
  *   1. le CLAUDE.md racine dépasse `maxLines` (200 par défaut — la cible documentée par
  *      Claude Code, au-delà de laquelle l'adhérence baisse) ;
- *   2. le total chargé au lancement dépasse `maxBytes` (60 000 par défaut, ~15 000 tokens) ;
+ *   2. le total chargé au lancement dépasse `maxBytes` (60 000 par défaut, ~25 000 tokens) ;
  *   3. un fichier est chargé DEUX fois — importé sans condition ET par une règle à `paths:`.
  *      Constaté sur un projet réel : deux règles conditionnelles posées pour alléger le
- *      lancement, les `@imports` d'origine jamais retirés, ~22 000 tokens rechargés à chaque
+ *      lancement, les `@imports` d'origine jamais retirés, ~58 000 tokens rechargés à chaque
  *      session pendant quatre jours sans que rien ne le signale.
  *
  * Configuration facultative : .claude/check.json, section "context" :
- *   { "maxLines": 200, "maxBytes": 60000 }
+ *   { "maxLines": 200, "maxBytes": 60000, "bytesPerToken": 2.4 }
  * Options : --max-lines N  --max-bytes N  --no-user  --json
  *
  * Les commentaires HTML sont retirés avant le comptage, comme Claude Code le fait avant
- * l'injection. Les tokens sont une ESTIMATION (octets / 4) : `/context` dans une session
- * donne le chiffre réel.
+ * l'injection. Les tokens sont une ESTIMATION (octets / 2,4 — mesuré le 16/09 sur `/context`
+ * d'une session réelle : 98 Ko de markdown français = 41 500 tokens, 47 Ko = 20 500 ; la
+ * première version divisait par 4 et sous-comptait d'un facteur 1,7) : `/context` dans une
+ * session donne le chiffre réel. `context.bytesPerToken` du manifeste l'ajuste.
  */
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, dirname, resolve, relative } from 'node:path';
@@ -57,6 +59,8 @@ if (existsSync(manifestPath)) {
 }
 const MAX_LINES = opt('--max-lines', cfg.maxLines ?? 200);
 const MAX_BYTES = opt('--max-bytes', cfg.maxBytes ?? 60_000);
+const BYTES_PER_TOKEN = cfg.bytesPerToken ?? 2.4; // français en markdown, mesuré — ~4 pour du code anglais
+const tokens = (bytes) => Math.round(bytes / BYTES_PER_TOKEN);
 const WITH_USER = !args.includes('--no-user');
 const AS_JSON = args.includes('--json');
 const MAX_DEPTH = 4;
@@ -209,7 +213,7 @@ if (rootInfo && rootInfo.lines > MAX_LINES) {
 }
 if (launchBytes > MAX_BYTES) {
   failures.push(
-    `${launchBytes.toLocaleString('fr-FR')} octets chargés à chaque lancement (~${Math.round(launchBytes / 4).toLocaleString('fr-FR')} tokens) ` +
+    `${launchBytes.toLocaleString('fr-FR')} octets chargés à chaque lancement (~${tokens(launchBytes).toLocaleString('fr-FR')} tokens) ` +
       `pour un budget de ${MAX_BYTES.toLocaleString('fr-FR')}. Voir le tableau : ce sont les imports qu'il faut rendre conditionnels.`,
   );
 }
@@ -242,6 +246,8 @@ if (AS_JSON) {
         launchLines,
         maxLines: MAX_LINES,
         maxBytes: MAX_BYTES,
+        bytesPerToken: BYTES_PER_TOKEN,
+        launchTokensEstimate: tokens(launchBytes),
         failures,
         warnings,
       },
@@ -261,7 +267,7 @@ for (const e of uniqueLaunch) {
 }
 console.log(`  ${'—'.repeat(5)}   ${'—'.repeat(9)}`);
 console.log(
-  `  ${String(launchLines).padStart(5)} l ${fmt(launchBytes)} o  total  (~${Math.round(launchBytes / 4).toLocaleString('fr-FR')} tokens estimés — \`/context\` donne le réel)`,
+  `  ${String(launchLines).padStart(5)} l ${fmt(launchBytes)} o  total  (~${tokens(launchBytes).toLocaleString('fr-FR')} tokens estimés à ${BYTES_PER_TOKEN} o/token — \`/context\` donne le réel)`,
 );
 
 if (conditional.length) {

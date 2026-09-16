@@ -85,15 +85,17 @@ pas** ; le fond dit **pourquoi**.
 ## L'incident qui a produit cette doctrine
 
 Un projet de bureau de quatre mois : `CLAUDE.md` de 685 lignes important cinq documents,
-**284 Ko chargés à chaque session (~70 000 tokens)** — quinze fois la cible — dont un
+**284 Ko chargés à chaque session — ~120 000 tokens, mesurés sur `/context`** (le premier
+estimateur disait 70 000 : le français en markdown pèse ~2,4 octets par token, pas 4) —
+quinze fois la cible en lignes — dont un
 document de 1 230 lignes racontant chaque passe de design depuis le premier jour. Le 12/09,
 un diagnostic avait produit deux règles à `paths:` pour rendre deux de ces documents
 conditionnels ; les `@imports` de la racine n'ont jamais été retirés. Pendant quatre jours,
-~22 000 tokens rechargés pour rien à chaque lancement, et chargés deux fois dès qu'un
+~58 000 tokens rechargés pour rien à chaque lancement, et chargés deux fois dès qu'un
 fichier de la scène était touché. Personne ne l'a vu : aucune commande ne le mesurait.
 
 Après découpage (racine 130 lignes, trois `CLAUDE.md` de dossier, six règles à `paths:`, le
-récit dans `docs/`) : 15 Ko au lancement, ~3 800 tokens — dix-neuf fois moins — plus le
+récit dans `docs/`) : 15 Ko au lancement, ~6 000 tokens — dix-neuf fois moins — plus le
 domaine touché ; et `check-context.mjs` échoue si la racine repasse 200 lignes ou si un
 doublon réapparaît.
 
@@ -103,5 +105,6 @@ doublon réapparaît.
   précise — la cible est courte ET précise, cf. `verification.md`.
 - Un domaine dont la règle n'arrive qu'après la première lecture : un interdit qui doit
   précéder tout geste reste en racine, même s'il ne concerne qu'un dossier.
-- L'estimation de tokens du mécanisme (octets / 4) est grossière ; `/context` dans une
-  session donne le chiffre réel, et c'est lui qui fait foi.
+- L'estimation de tokens du mécanisme (octets / 2,4, calibrée sur une mesure réelle de
+  markdown français) reste une estimation ; `/context` dans une session donne le chiffre
+  réel, et c'est lui qui fait foi — `context.bytesPerToken` du manifeste l'ajuste.

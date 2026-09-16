@@ -231,7 +231,7 @@ ont produit, mesuré :
 |---|---|---|
 | `check-registry.mjs` | registre réel, 130 fichiers source | 1 fichier créé et jamais documenté, trouvé en une passe |
 | `check-registry.mjs` | même registre, mentions historiques | 1 faux positif → règle resserrée aux titres de section |
-| `check-context.mjs` | projet de bureau, `CLAUDE.md` de 685 lignes + 5 imports | **284 Ko (~70 000 tokens) rechargés à chaque session**, dont 2 docs chargées deux fois depuis 4 jours — découpé en 4 couches, 15 Ko (~3 800 tokens) après |
+| `check-context.mjs` | projet de bureau, `CLAUDE.md` de 685 lignes + 5 imports | **284 Ko (~120 000 tokens mesurés sur `/context`) rechargés à chaque session**, dont 2 docs chargées deux fois depuis 4 jours — découpé en 4 couches, 15 Ko (~6 000 tokens) après ; la mesure réelle a aussi corrigé l'estimateur (octets/4 → octets/2,4 pour du français) |
 | `check-context.mjs` | second projet de bureau, 535 lignes | dépassement signalé, découpage à faire |
 | hook pre-commit | projet sans tests, sans lint, sans registre | 3 étapes annoncées sautées, build exécuté, passe |
 | hook pre-commit | index vide | **bloquait tous les commits** → corrigé (tester le contenu, pas le code retour du pipeline) |
